@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.OleCtrls, Vcl.ExtCtrls,
-  DateUtils, StrUtils,
+  DateUtils, StrUtils, System.IniFiles,
   MSHTML, SHDocVw;
 
 type
@@ -17,6 +17,7 @@ type
     pnlTop: TPanel;
     procedure btnDownloadClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
   public
@@ -31,21 +32,8 @@ implementation
 Uses untIECompat, untDownloadCommon;
 
 {$R *.dfm}
-
-const
-  C_Echo_Block: array [1..60] of string = (
-    'bigecho', 'classicrock', 'odna', 'risk',
-    'vinil', 'peskov', 'unpast', 'farm',
-    'apriscatole', 'moscowtravel', 'speakrus', 'orders',
-    'kazino', 'autorsong', 'redrquare', 'museum',
-    'voensovet', 'parking', 'graniweek', 'gorodovoy',
-    'proehali', 'skaner', 'doehali', 'zoloto', 'glam', 'babnik', 'blues', 'znamenatel',
-    'arsenal', 'football', 'galopom', 'autorsong', 'tabel', 'buntman-kid', 'keys', 'blogout1',
-    'beatles', 'bombard', 'radiodetaly', 'garage', 'dream', 'blokadagolosa', 'victory', 'help',
-    'dalvostok', '-0805.mp3', 'cenapobedy', 'aqua', 'agent_provocateur', 'gulko-kid',
-    'speaktatar', 'tv_person', 'vsetakplus', 'vottak'
-    , 'kurspotapenko', 'club_parina', 'ganapolskoe_itogi', 'knigivokrug', 'sho_tam', '-tv-'
-    );
+var
+  C_Echo_Block: TStringList;
 
 procedure ProcessNodes(ANode: MSHTML.IHTMLElement; var AIgnoreSubNodes: Boolean);
 var
@@ -63,9 +51,9 @@ begin
   if href.StartsWith('https://cdn', True) and  href.EndsWith('.mp3', True) then
   begin
   OutputDebugString(PChar('href = ' + href));
-    for I := Low(C_Echo_Block) to High(C_Echo_Block) do
+    for I := 0 to C_Echo_Block.Count - 1 do
     begin
-      if AnsiContainsText(href, C_Echo_Block[I]) then
+      if AnsiContainsText(href, C_Echo_Block.ValueFromIndex[I]) then
         Exit;
     end;
     //https://cdn.echo.msk.ru/snd/2018-12-10-razbor_poleta-2105.mp3
@@ -102,9 +90,34 @@ begin
     TraverseNodeTree(content, ProcessNodes);
 end;
 
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+  setts: TIniFile;
+  I: Integer;
+begin
+  setts := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
+  try
+    setts.WriteDate('Main', 'Date', dtpDate.Date);
+    for I := 0 to C_Echo_Block.Count - 1 do
+      setts.WriteString('Blocks', IntToStr(I), C_Echo_Block[I]);
+  finally
+    setts.Free;
+  end;
+end;
+
 procedure TForm1.FormCreate(Sender: TObject);
+var
+  setts: TIniFile;
 begin
   PutIECompatible(11, cmrCurrentUser);
+  C_Echo_Block := TStringList.Create;
+  setts := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
+  try
+    dtpDate.Date := setts.ReadDate('Main', 'Date', Trunc(Now));
+    setts.ReadSectionValues('Blocks', C_Echo_Block);
+  finally
+    setts.Free;
+  end;
 end;
 
 end.

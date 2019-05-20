@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'EchoSave'
-  ClientHeight = 621
+  ClientHeight = 376
   ClientWidth = 631
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -11,6 +11,7 @@ object Form1: TForm1
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
@@ -18,13 +19,13 @@ object Form1: TForm1
     Left = 0
     Top = 41
     Width = 631
-    Height = 580
+    Height = 335
     Align = alClient
     TabOrder = 0
     ExplicitWidth = 472
     ExplicitHeight = 202
     ControlData = {
-      4C00000037410000F23B00000000000000000000000000000000000000000000
+      4C00000037410000A02200000000000000000000000000000000000000000000
       000000004C000000000000000000000001000000E0D057007335CF11AE690800
       2B2E12620A000000000000004C0000000114020000000000C000000000000046
       8000000000000000000000000000000000000000000000000000000000000000
@@ -50,7 +51,7 @@ object Form1: TForm1
       Width = 102
       Height = 21
       Date = 43466.000000000000000000
-      Time = 0.449967013890272900
+      Time = 0.449967013890273000
       TabOrder = 0
     end
     object btnDownload: TButton
