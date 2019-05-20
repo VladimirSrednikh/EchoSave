@@ -53,7 +53,7 @@ begin
   OutputDebugString(PChar('href = ' + href));
     for I := 0 to C_Echo_Block.Count - 1 do
     begin
-      if AnsiContainsText(href, C_Echo_Block.ValueFromIndex[I]) then
+      if AnsiContainsText(href, C_Echo_Block.Names[I]) then
         Exit;
     end;
     //https://cdn.echo.msk.ru/snd/2018-12-10-razbor_poleta-2105.mp3
@@ -98,8 +98,9 @@ begin
   setts := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
   try
     setts.WriteDate('Main', 'Date', dtpDate.Date);
+    C_Echo_Block.Sort;
     for I := 0 to C_Echo_Block.Count - 1 do
-      setts.WriteString('Blocks', IntToStr(I), C_Echo_Block[I]);
+      setts.WriteString('Blocks', C_Echo_Block.Names[I], '1');
   finally
     setts.Free;
   end;
