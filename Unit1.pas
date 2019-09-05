@@ -37,7 +37,7 @@ var
 
 procedure ProcessNodes(ANode: MSHTML.IHTMLElement; var AIgnoreSubNodes: Boolean);
 var
-  href, destfolder, DayStr, FileName: string;
+  href, destfolder, CurrDate, FileDate, FileName: string;
   tmpfname, programname, tmstr: string;
   I: Integer;
   year, mon, day: Word;
@@ -58,18 +58,19 @@ begin
     end;
     //https://cdn.echo.msk.ru/snd/2018-12-10-razbor_poleta-2105.mp3
     DecodeDate(Form1.dtpDate.Date, year, mon, day);
-    DayStr := Format('%4d-%.2d-%.2d', [year, mon, day]);
-    destfolder := IncludeTrailingPathDelimiter(ExtractFileDir(Application.ExeName)) + DayStr + '\';
+    CurrDate := Format('%4d-%.2d-%.2d', [year, mon, day]);
+    destfolder := IncludeTrailingPathDelimiter(ExtractFileDir(Application.ExeName)) + CurrDate + '\';
     FileName := href.Substring(href.LastDelimiter('/') + 1);
+    FileDate := Copy(FileName, 1, Length('2018-12-10'));
 
     tmpfname := ReplaceText(FileName, '.mp3', '');
     tmstr := Copy(tmpfname, Length(tmpfname) - 4 + 1, 4);
     programname := Copy(tmpfname, 12, Length(tmpfname) - 4 - 12);
 
 
-    FileName := Format('%s-%s-%s.mp3', [DayStr, tmstr, programname]);
+    FileName := Format('%s-%s-%s.mp3', [FileDate, tmstr, programname]);
 
-    if AnsiStartsText(DayStr,  FileName) then // чтобы не скачивать повторы с предыдущих дней
+    if AnsiStartsText(FileDate,  FileName) then // чтобы не скачивать повторы с предыдущих дней
       DownloadFile(href, FileName, destfolder);
   end;
 end;
@@ -83,19 +84,24 @@ var
 begin
   DecodeDate(dtpDate.Date, year, mon, day);
   url := Format('https://echo.msk.ru/schedule/%4d-%.2d-%.2d.html', [year, mon, day]);
-  NavigateAndWait(wb1, url);
-  bodyHTML := (wb1.Document as IHTMLDocument2).body;
-  content := FindNodeByAttrExStarts(bodyHTML, 'section', 'class', 'content');
-  if content <> nil then
-    TraverseNodeTree(content, ProcessNodes);
+  try
+    Screen.Cursor := crHourGlass;
+    NavigateAndWait(wb1, url);
+    bodyHTML := (wb1.Document as IHTMLDocument2).body;
+    content := FindNodeByAttrExStarts(bodyHTML, 'section', 'class', 'content');
+    if content <> nil then
+      TraverseNodeTree(content, ProcessNodes);
+  finally
+    Screen.Cursor := crDefault;
+  end;
 end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
-var
+{var
   setts: TIniFile;
-  I: Integer;
+  I: Integer;}
 begin
-  setts := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
+{  setts := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
   try
     setts.WriteDate('Main', 'Date', dtpDate.Date);
     C_Echo_Block.Sort;
@@ -103,7 +109,7 @@ begin
       setts.WriteString('Blocks', C_Echo_Block.Names[I], '1');
   finally
     setts.Free;
-  end;
+  end;}
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
