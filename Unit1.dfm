@@ -51,7 +51,7 @@ object Form1: TForm1
       Width = 102
       Height = 21
       Date = 43466.000000000000000000
-      Time = 0.449967013890273000
+      Time = 0.449967013890272900
       TabOrder = 0
     end
     object btnDownload: TButton

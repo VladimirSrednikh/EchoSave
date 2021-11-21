@@ -32,6 +32,7 @@ implementation
 Uses untIECompat, untDownloadCommon;
 
 {$R *.dfm}
+
 var
   C_Echo_Block: TStringList;
 
@@ -42,21 +43,22 @@ var
   I: Integer;
   year, mon, day: Word;
 begin
-  if not SameText(ANode.tagName, 'a') then Exit;
-//  OutputDebugString(PChar(
-//    Format('ProcessNodes: %s id = %s, class = %s [%s]',
-//    [ANode.tagName, ANode.id,  ANode._classname, ANode.outerHTML])));
+  if not SameText(ANode.tagName, 'a') then
+    Exit;
+  // OutputDebugString(PChar(
+  // Format('ProcessNodes: %s id = %s, class = %s [%s]',
+  // [ANode.tagName, ANode.id,  ANode._classname, ANode.outerHTML])));
   href := ANode.getAttribute('href', 0);
 
-  if href.StartsWith('https://cdn', True) and  href.EndsWith('.mp3', True) then
+  if href.StartsWith('https://cdn', True) and href.EndsWith('.mp3', True) then
   begin
-  OutputDebugString(PChar('href = ' + href));
+    OutputDebugString(PChar('href = ' + href));
     for I := 0 to C_Echo_Block.Count - 1 do
     begin
       if AnsiContainsText(href, C_Echo_Block.Names[I]) then
         Exit;
     end;
-    //https://cdn.echo.msk.ru/snd/2018-12-10-razbor_poleta-2105.mp3
+    // https://cdn.echo.msk.ru/snd/2018-12-10-razbor_poleta-2105.mp3
     DecodeDate(Form1.dtpDate.Date, year, mon, day);
     CurrDate := Format('%4d-%.2d-%.2d', [year, mon, day]);
     destfolder := IncludeTrailingPathDelimiter(ExtractFileDir(Application.ExeName)) + CurrDate + '\';
@@ -67,10 +69,9 @@ begin
     tmstr := Copy(tmpfname, Length(tmpfname) - 4 + 1, 4);
     programname := Copy(tmpfname, 12, Length(tmpfname) - 4 - 12);
 
-
     FileName := Format('%s-%s-%s.mp3', [FileDate, tmstr, programname]);
 
-    if AnsiStartsText(FileDate,  FileName) then // чтобы не скачивать повторы с предыдущих дней
+    if AnsiStartsText(FileDate, FileName) then // чтобы не скачивать повторы с предыдущих дней
       DownloadFile(href, FileName, destfolder);
   end;
 end;
@@ -97,11 +98,11 @@ begin
 end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
-{var
+var
   setts: TIniFile;
-  I: Integer;}
+  I: Integer;
 begin
-{  setts := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
+  setts := TIniFile.Create(ChangeFileExt(Application.ExeName, '.ini'));
   try
     setts.WriteDate('Main', 'Date', dtpDate.Date);
     C_Echo_Block.Sort;
@@ -109,7 +110,7 @@ begin
       setts.WriteString('Blocks', C_Echo_Block.Names[I], '1');
   finally
     setts.Free;
-  end;}
+  end;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
