@@ -45,14 +45,10 @@ var
 begin
   if not SameText(ANode.tagName, 'a') then
     Exit;
-  // OutputDebugString(PChar(
-  // Format('ProcessNodes: %s id = %s, class = %s [%s]',
-  // [ANode.tagName, ANode.id,  ANode._classname, ANode.outerHTML])));
   href := ANode.getAttribute('href', 0);
 
   if href.StartsWith('https://cdn', True) and href.EndsWith('.mp3', True) then
   begin
-    OutputDebugString(PChar('href = ' + href));
     for I := 0 to C_Echo_Block.Count - 1 do
     begin
       if AnsiContainsText(href, C_Echo_Block.Names[I]) then
